@@ -64,6 +64,7 @@ router.post('/signup', async (req: AuthRequest, res: Response) => {
     res.cookie('token', token, COOKIE_OPTIONS)
 
     return res.json({
+      token,
       user: { id: user.id, email: user.email, country: user.country, createdAt: user.createdAt },
     })
   } catch (err: any) {
@@ -92,6 +93,7 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
     res.cookie('token', token, COOKIE_OPTIONS)
 
     return res.json({
+      token,
       user: { id: user.id, email: user.email, country: user.country, createdAt: user.createdAt },
     })
   } catch (err: any) {

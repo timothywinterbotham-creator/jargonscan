@@ -1,10 +1,26 @@
-const API_BASE = '/api'
+const API_BASE = import.meta.env.PROD
+  ? 'https://jargonscan-server-production.up.railway.app/api'
+  : '/api'
+
+function getAuthHeader(): Record<string, string> {
+  const token = localStorage.getItem('token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+export function setToken(token: string) {
+  localStorage.setItem('token', token)
+}
+
+export function clearToken() {
+  localStorage.removeItem('token')
+}
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeader(),
       ...options?.headers,
     },
     ...options,
@@ -37,7 +53,8 @@ export const api = {
     fetch(`${API_BASE}/scans`, {
       method: 'POST',
       credentials: 'include',
-      body: formData, // No Content-Type header — browser sets multipart boundary
+      headers: { ...getAuthHeader() },
+      body: formData,
     }).then(async (res) => {
       if (!res.ok) throw new Error((await res.json()).message)
       return res.json()
@@ -58,5 +75,8 @@ export const api = {
 
   // Dispute letters
   getDisputeLetter: (scanId: string) =>
-    fetch(`${API_BASE}/scans/${scanId}/dispute-letter`, { credentials: 'include' }),
+    fetch(`${API_BASE}/scans/${scanId}/dispute-letter`, {
+      credentials: 'include',
+      headers: { ...getAuthHeader() },
+    }),
 }

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { api } from '../lib/api'
+import { api, setToken, clearToken } from '../lib/api'
 
 interface User {
   id: string
@@ -30,17 +30,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    const { user } = await api.login({ email, password }) as any
-    setUser(user)
+    const result = await api.login({ email, password }) as any
+    if (result.token) setToken(result.token)
+    setUser(result.user)
   }
 
   const signup = async (email: string, password: string, country: string, inviteCode: string) => {
-    const { user } = await api.signup({ email, password, country, inviteCode }) as any
-    setUser(user)
+    const result = await api.signup({ email, password, country, inviteCode }) as any
+    if (result.token) setToken(result.token)
+    setUser(result.user)
   }
 
   const logout = async () => {
     await api.logout()
+    clearToken()
     setUser(null)
   }
 

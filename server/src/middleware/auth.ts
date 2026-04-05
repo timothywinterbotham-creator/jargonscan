@@ -15,8 +15,17 @@ export function verifyToken(token: string): { userId: string } {
   return jwt.verify(token, JWT_SECRET) as { userId: string }
 }
 
+function getToken(req: AuthRequest): string | undefined {
+  // Check Authorization header first, then cookies
+  const authHeader = req.headers.authorization
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.slice(7)
+  }
+  return req.cookies?.token
+}
+
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
-  const token = req.cookies?.token
+  const token = getToken(req)
   if (!token) {
     return res.status(401).json({ message: 'Authentication required' })
   }
@@ -31,7 +40,7 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
 }
 
 export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction) {
-  const token = req.cookies?.token
+  const token = getToken(req)
   if (token) {
     try {
       const { userId } = verifyToken(token)
