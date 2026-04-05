@@ -20,7 +20,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   // Auth
-  signup: (data: { email: string; password: string; country: string }) =>
+  signup: (data: { email: string; password: string; country: string; inviteCode: string }) =>
     request('/auth/signup', { method: 'POST', body: JSON.stringify(data) }),
 
   login: (data: { email: string; password: string }) =>

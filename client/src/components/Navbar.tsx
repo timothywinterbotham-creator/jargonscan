@@ -20,6 +20,7 @@ export default function Navbar() {
           <Link to="/" className="flex items-center gap-2">
             <Shield className="w-8 h-8 text-brand-red" />
             <span className="text-xl font-bold">JargonScan</span>
+            <span className="bg-brand-red/10 border border-brand-red/30 text-brand-red text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none">BETA</span>
           </Link>
 
           {/* Desktop nav */}

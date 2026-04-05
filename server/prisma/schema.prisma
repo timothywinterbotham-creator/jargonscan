@@ -60,6 +60,14 @@ model Credit {
   updatedAt DateTime @updatedAt
 }
 
+model InviteCode {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  usedBy    String?  // userId who redeemed it
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
 model Transaction {
   id              String   @id @default(uuid())
   userId          String?

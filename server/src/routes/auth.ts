@@ -10,6 +10,7 @@ const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   country: z.string().length(2),
+  inviteCode: z.string().min(1, 'Invite code is required'),
 })
 
 const loginSchema = z.object({
@@ -27,7 +28,16 @@ const COOKIE_OPTIONS = {
 
 router.post('/signup', async (req: AuthRequest, res: Response) => {
   try {
-    const { email, password, country } = signupSchema.parse(req.body)
+    const { email, password, country, inviteCode } = signupSchema.parse(req.body)
+
+    // Validate invite code
+    const invite = await prisma.inviteCode.findUnique({ where: { code: inviteCode } })
+    if (!invite) {
+      return res.status(400).json({ message: 'Invalid invite code' })
+    }
+    if (invite.usedBy) {
+      return res.status(400).json({ message: 'This invite code has already been used' })
+    }
 
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) {
@@ -37,6 +47,12 @@ router.post('/signup', async (req: AuthRequest, res: Response) => {
     const passwordHash = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({
       data: { email, passwordHash, country },
+    })
+
+    // Mark invite code as used
+    await prisma.inviteCode.update({
+      where: { code: inviteCode },
+      data: { usedBy: user.id, usedAt: new Date() },
     })
 
     // Create initial credits

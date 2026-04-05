@@ -21,7 +21,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto text-center relative">
           <div className="inline-flex items-center gap-2 bg-brand-red/10 border border-brand-red/20 rounded-full px-4 py-1.5 mb-6">
             <Shield className="w-4 h-4 text-brand-red" />
-            <span className="text-sm text-brand-red font-medium">AI-Powered Document Audit</span>
+            <span className="text-sm text-brand-red font-medium">Private Beta — Invite Only</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
             They hide it in the<br />

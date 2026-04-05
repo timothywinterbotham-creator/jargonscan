@@ -9,6 +9,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [country, setCountry] = useState('US')
+  const [inviteCode, setInviteCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -21,7 +22,7 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
     try {
-      await signup(email, password, country)
+      await signup(email, password, country, inviteCode)
       navigate('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Something went wrong')
@@ -33,9 +34,24 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="card max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-6">Create your account</h1>
+        <div className="flex items-center gap-2 mb-2">
+          <h1 className="text-2xl font-bold">Create your account</h1>
+          <span className="bg-brand-red/10 border border-brand-red/30 text-brand-red text-xs font-semibold px-2 py-0.5 rounded-full">BETA</span>
+        </div>
+        <p className="text-brand-gray-500 text-sm mb-6">JargonScan is currently invite-only. Enter your invite code to join.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Invite Code</label>
+            <input
+              type="text"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              className="input font-mono tracking-widest"
+              placeholder="XXXX-XXXX"
+              required
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium mb-1">Email</label>
             <input

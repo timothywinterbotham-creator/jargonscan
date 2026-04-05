@@ -12,7 +12,7 @@ interface AuthContext {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  signup: (email: string, password: string, country: string) => Promise<void>
+  signup: (email: string, password: string, country: string, inviteCode: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -34,8 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user)
   }
 
-  const signup = async (email: string, password: string, country: string) => {
-    const { user } = await api.signup({ email, password, country }) as any
+  const signup = async (email: string, password: string, country: string, inviteCode: string) => {
+    const { user } = await api.signup({ email, password, country, inviteCode }) as any
     setUser(user)
   }
 
