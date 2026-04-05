@@ -66,6 +66,10 @@ export const api = {
   getScans: () =>
     request<{ scans: any[] }>('/scans'),
 
+  // Test mode: trigger analysis without payment
+  triggerAnalysis: (scanId: string) =>
+    request('/scans/' + scanId + '/analyze', { method: 'POST' }),
+
   // Payments
   createCheckout: (data: { scanId: string; tier: string }) =>
     request<{ url: string }>('/payments/checkout', { method: 'POST', body: JSON.stringify(data) }),

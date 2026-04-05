@@ -52,9 +52,9 @@ export default function ScanPage() {
 
       const { scan } = await api.createScan(formData)
 
-      // Redirect to payment
-      const { url } = await api.createCheckout({ scanId: scan.id, tier })
-      window.location.href = url
+      // DEV/TEST MODE: Skip payment, trigger analysis directly
+      await api.triggerAnalysis(scan.id)
+      navigate(`/processing/${scan.id}`)
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.')
       setLoading(false)

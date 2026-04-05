@@ -88,6 +88,17 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
   return res.json({ scan })
 })
 
+// TEST MODE: Trigger analysis without payment
+router.post('/:id/analyze', optionalAuth, async (req: AuthRequest, res: Response) => {
+  const scan = await prisma.scan.findUnique({ where: { id: req.params.id } })
+  if (!scan) return res.status(404).json({ message: 'Scan not found' })
+
+  // Mark as paid and trigger analysis
+  await prisma.scan.update({ where: { id: scan.id }, data: { status: 'paid' } })
+  runAnalysis(scan.id).catch(err => console.error('Analysis failed:', scan.id, err))
+  return res.json({ message: 'Analysis started' })
+})
+
 // Run analysis (called after payment confirmed)
 export async function runAnalysis(scanId: string) {
   const scan = await prisma.scan.findUnique({ where: { id: scanId } })
