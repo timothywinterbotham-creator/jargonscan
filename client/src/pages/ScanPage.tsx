@@ -2,15 +2,14 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDropzone } from 'react-dropzone'
 import { Upload, FileText, X, Check } from 'lucide-react'
-import { DOCUMENT_TYPES, COUNTRIES, TIERS } from '../lib/constants'
-import type { DocumentType, CountryCode, TierId } from '../lib/constants'
+import { DOCUMENT_TYPES, COUNTRIES } from '../lib/constants'
+import type { DocumentType, CountryCode } from '../lib/constants'
 import { api } from '../lib/api'
 
 export default function ScanPage() {
   const navigate = useNavigate()
   const [docType, setDocType] = useState<DocumentType | ''>('')
   const [country, setCountry] = useState<CountryCode>('US')
-  const [tier, setTier] = useState<TierId>('full-dispute')
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -31,7 +30,7 @@ export default function ScanPage() {
       'image/heic': ['.heic'],
     },
     maxFiles: 1,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 10 * 1024 * 1024,
   })
 
   const handleSubmit = async () => {
@@ -48,11 +47,9 @@ export default function ScanPage() {
       formData.append('file', file)
       formData.append('documentType', docType)
       formData.append('country', country)
-      formData.append('tier', tier)
+      formData.append('tier', 'full-dispute')
 
       const { scan } = await api.createScan(formData)
-
-      // DEV/TEST MODE: Skip payment, trigger analysis directly
       await api.triggerAnalysis(scan.id)
       navigate(`/processing/${scan.id}`)
     } catch (err: any) {
@@ -113,7 +110,7 @@ export default function ScanPage() {
         </div>
 
         {/* File upload */}
-        <div className="mb-6">
+        <div className="mb-8">
           <label className="block text-sm font-medium mb-3">Upload Document</label>
           {file ? (
             <div className="card flex items-center justify-between">
@@ -121,7 +118,7 @@ export default function ScanPage() {
                 <FileText className="w-8 h-8 text-brand-red" />
                 <div>
                   <p className="font-medium text-sm">{file.name}</p>
-                  <p className="text-brand-gray-500 text-xs">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="text-brand-gray-500 text-xs">{(file.size / 1024).toFixed(1)} KB</p>
                 </div>
               </div>
               <button onClick={() => setFile(null)} className="text-brand-gray-500 hover:text-white">
@@ -145,32 +142,6 @@ export default function ScanPage() {
           )}
         </div>
 
-        {/* Tier selection */}
-        <div className="mb-8">
-          <label className="block text-sm font-medium mb-3">Scan Tier</label>
-          <div className="space-y-3">
-            {TIERS.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTier(t.id)}
-                className={`card w-full text-left transition-all ${
-                  tier === t.id
-                    ? 'border-brand-red bg-brand-red/5'
-                    : 'hover:border-brand-gray-600'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold">{t.name}</div>
-                    <div className="text-brand-gray-400 text-sm">{t.description}</div>
-                  </div>
-                  <div className="text-xl font-bold">${t.price.toFixed(2)}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
             {error}
@@ -180,9 +151,9 @@ export default function ScanPage() {
         <button
           onClick={handleSubmit}
           disabled={loading || !file || !docType}
-          className="btn-primary w-full text-lg !py-4"
+          className="btn-primary w-full text-lg !py-4 disabled:opacity-50"
         >
-          {loading ? 'Processing...' : `Scan Document — $${TIERS.find(t => t.id === tier)?.price.toFixed(2)}`}
+          {loading ? 'Scanning...' : 'Scan Document'}
         </button>
 
         <p className="text-brand-gray-600 text-xs text-center mt-4">
