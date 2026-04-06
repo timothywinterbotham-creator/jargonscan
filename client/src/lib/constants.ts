@@ -6,6 +6,7 @@ export const DOCUMENT_TYPES = [
   { id: 'landlord-dispute', label: 'Landlord/Tenant Dispute', icon: 'Home' },
   { id: 'bank-fee', label: 'Bank Fee', icon: 'Landmark' },
   { id: 'airline-claim', label: 'Airline/Travel Claim', icon: 'Plane' },
+  { id: 'other', label: 'Other / Miscellaneous', icon: 'FileQuestion' },
 ] as const
 
 export const COUNTRIES = [

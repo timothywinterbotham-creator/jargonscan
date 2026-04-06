@@ -63,6 +63,15 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - DOT 24-hour booking cancellation rule
 - DOT dashboard of airline commitments
 - State consumer protection laws for travel`,
+
+    'other': `US-specific consumer protection regulations to check:
+- FTC Act Section 5 — unfair or deceptive acts or practices
+- State consumer protection and unfair business practices statutes
+- Truth in Lending Act (TILA) for credit-related documents
+- State usury laws for interest rate caps
+- Automatic renewal laws (varies by state, e.g., California ARL)
+- CFPB regulations for financial products
+- State attorney general consumer protection enforcement`,
   },
 
   GB: {
@@ -128,6 +137,14 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - CAA enforcement and CEDR/AviationADR dispute resolution
 - Package Travel Regulations 2018
 - Consumer Rights Act 2015 for travel services`,
+
+    'other': `UK-specific consumer protection regulations to check:
+- Consumer Rights Act 2015 — unfair terms, quality of services
+- Consumer Contracts Regulations 2013 — cancellation rights
+- Financial Conduct Authority rules for financial products
+- Unfair Trading Regulations 2008
+- Citizens Advice and Trading Standards enforcement
+- Financial Ombudsman Service for financial disputes`,
   },
 
   AU: {
@@ -188,6 +205,14 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - No specific EU261-style compensation regime (but ACL applies)
 - Airline Customer Advocate dispute resolution
 - Montreal Convention for international flights`,
+
+    'other': `Australia-specific consumer protection regulations to check:
+- Australian Consumer Law (ACL) — unfair contract terms, consumer guarantees
+- ACCC enforcement of misleading or deceptive conduct
+- State/territory fair trading acts
+- ASIC regulations for financial products
+- Unfair contract terms provisions under ACL
+- Australian Financial Complaints Authority (AFCA) for financial disputes`,
   },
 
   CA: {
@@ -243,6 +268,14 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - Lost/damaged baggage compensation
 - Canadian Transportation Agency complaint process
 - Montreal Convention for international flights`,
+
+    'other': `Canada-specific consumer protection regulations to check:
+- Provincial consumer protection acts (Ontario CPA, BC BPCPA, Quebec CPA)
+- Competition Act — misleading advertising and deceptive practices
+- Federal interest rate criminal threshold (60% per annum)
+- Automatic renewal and negative option billing laws by province
+- Financial Consumer Agency of Canada (FCAC) for financial products
+- Provincial consumer protection offices for complaints`,
   },
 
   NZ: {
@@ -292,6 +325,13 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - Fair Trading Act 1986
 - Airlines must provide services with reasonable care and skill
 - Montreal Convention for international flights`,
+
+    'other': `New Zealand-specific consumer protection regulations to check:
+- Consumer Guarantees Act 1993 — quality, fitness for purpose
+- Fair Trading Act 1986 — misleading conduct, unfair contract terms
+- Credit Contracts and Consumer Finance Act 2003
+- Commerce Commission enforcement
+- Disputes Tribunal for claims under $30,000`,
   },
 
   IE: {
@@ -344,6 +384,14 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - Commission for Aviation Regulation (CAR) enforcement
 - Small Claims Court procedure for airline claims
 - Montreal Convention for baggage claims`,
+
+    'other': `Ireland-specific consumer protection regulations to check:
+- Consumer Protection Act 2007 — unfair, misleading, aggressive practices
+- Consumer Rights Act 2022
+- Central Bank Consumer Protection Code for financial products
+- Competition and Consumer Protection Commission (CCPC) enforcement
+- EU Consumer Rights Directive (as transposed)
+- Financial Services and Pensions Ombudsman (FSPO) for financial disputes`,
   },
 
   ZA: {
@@ -399,5 +447,13 @@ export const countryOverlays: Record<string, Record<string, string>> = {
 - Montreal Convention for international flights
 - National Consumer Commission complaints
 - No specific EU261-style compensation regime`,
+
+    'other': `South Africa-specific consumer protection regulations to check:
+- Consumer Protection Act 68 of 2008 — unfair terms, right to fair value
+- National Credit Act 34 of 2005 for credit-related documents
+- In duplum rule (interest cannot exceed principal)
+- National Consumer Commission complaints and enforcement
+- Financial Sector Conduct Authority (FSCA) for financial products
+- Consumer Goods and Services Ombud`,
   },
 }
