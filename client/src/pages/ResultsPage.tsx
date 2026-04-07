@@ -54,7 +54,7 @@ export default function ResultsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `dispute-letter-${scanId}.txt`
+    a.download = `dispute-letter-${scanId}.pdf`
     a.click()
     URL.revokeObjectURL(url)
   }

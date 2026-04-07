@@ -181,7 +181,7 @@ export async function runAnalysis(scanId: string) {
   }
 }
 
-// Download dispute letter
+// Download dispute letter as PDF
 router.get('/:id/dispute-letter', optionalAuth, async (req: AuthRequest, res: Response) => {
   const scan = await prisma.scan.findUnique({
     where: { id: req.params.id },
@@ -197,9 +197,42 @@ router.get('/:id/dispute-letter', optionalAuth, async (req: AuthRequest, res: Re
 
   const letter = generateDisputeLetter(scan, scan.flags)
 
-  res.setHeader('Content-Type', 'text/plain')
-  res.setHeader('Content-Disposition', `attachment; filename="dispute-letter-${scan.id}.txt"`)
-  return res.send(letter)
+  // Generate PDF
+  const PDFDocument = (await import('pdfkit')).default
+  const doc = new PDFDocument({ margin: 60, size: 'LETTER' })
+
+  res.setHeader('Content-Type', 'application/pdf')
+  res.setHeader('Content-Disposition', `attachment; filename="dispute-letter-${scan.id}.pdf"`)
+  doc.pipe(res)
+
+  // Header
+  doc.fontSize(10).fillColor('#999999').text('JargonScan Dispute Letter', { align: 'right' })
+  doc.moveDown(2)
+
+  // Body - process line by line
+  const lines = letter.split('\n')
+  for (const line of lines) {
+    if (line.startsWith('---') && line.includes('Issue')) {
+      doc.moveDown(0.5)
+      doc.fontSize(11).fillColor('#cc3333').font('Helvetica-Bold').text(line.replace(/---/g, '').trim())
+      doc.fillColor('#333333').font('Helvetica')
+    } else if (line.startsWith('RE:') || line.startsWith('To:')) {
+      doc.fontSize(11).font('Helvetica-Bold').text(line)
+      doc.font('Helvetica')
+    } else if (line.startsWith('Severity:') || line.startsWith('Description:') || line.startsWith('Estimated Impact:') || line.startsWith('Applicable Regulation:') || line.startsWith('Requested Action:')) {
+      const [label, ...rest] = line.split(': ')
+      doc.fontSize(10).font('Helvetica-Bold').text(label + ': ', { continued: true })
+      doc.font('Helvetica').text(rest.join(': '))
+    } else if (line.startsWith('---')) {
+      doc.moveDown(0.3)
+    } else if (line.trim() === '') {
+      doc.moveDown(0.5)
+    } else {
+      doc.fontSize(10).fillColor('#333333').font('Helvetica').text(line)
+    }
+  }
+
+  doc.end()
 })
 
 export default router
