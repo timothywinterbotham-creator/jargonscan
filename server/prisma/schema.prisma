@@ -30,6 +30,7 @@ model Scan {
   status       String   @default("pending") // pending, paid, extracting, analyzing, completed, failed
   filePath     String?
   extractedText String?
+  summary      String?  // Plain-English document summary
   errorMessage String?
   resources    String?  // JSON string of resource directory
   createdAt    DateTime @default(now())

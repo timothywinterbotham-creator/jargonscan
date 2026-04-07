@@ -5,7 +5,7 @@ import fs from 'fs/promises'
 import { v4 as uuid } from 'uuid'
 import { prisma } from '../db/client.js'
 import { requireAuth, optionalAuth, AuthRequest } from '../middleware/auth.js'
-import { analyzeDocument } from '../services/analysis.js'
+import { analyzeDocument, generateSummary } from '../services/analysis.js'
 import { extractTextFromPDF } from '../services/extraction.js'
 import { generateDisputeLetter } from '../services/dispute.js'
 
@@ -122,8 +122,11 @@ export async function runAnalysis(scanId: string) {
       data: { extractedText, status: 'analyzing' },
     })
 
-    // Run AI analysis
-    const flags = await analyzeDocument(extractedText, scan.documentType, scan.country, scan.tier)
+    // Run AI analysis + summary in parallel
+    const [flags, summary] = await Promise.all([
+      analyzeDocument(extractedText, scan.documentType, scan.country, scan.tier),
+      generateSummary(extractedText, scan.documentType, scan.country),
+    ])
 
     // Save flags
     for (const flag of flags) {
@@ -150,7 +153,7 @@ export async function runAnalysis(scanId: string) {
     // Mark complete
     await prisma.scan.update({
       where: { id: scanId },
-      data: { status: 'completed', resources },
+      data: { status: 'completed', resources, summary },
     })
 
     // Clean up uploaded file

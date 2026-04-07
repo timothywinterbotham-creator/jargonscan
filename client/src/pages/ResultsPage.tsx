@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { AlertTriangle, AlertCircle, Info, Download, ArrowLeft, ExternalLink } from 'lucide-react'
+import { AlertTriangle, AlertCircle, Info, Download, ArrowLeft, FileText, Shield } from 'lucide-react'
 import { api } from '../lib/api'
 import { DOCUMENT_TYPES, COUNTRIES } from '../lib/constants'
 
@@ -20,6 +20,7 @@ interface ScanResult {
   country: string
   tier: string
   status: string
+  summary: string | null
   flags: Flag[]
   createdAt: string
 }
@@ -35,6 +36,7 @@ export default function ResultsPage() {
   const [scan, setScan] = useState<ScanResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState<'flags' | 'summary'>('flags')
 
   useEffect(() => {
     if (!scanId) return
@@ -52,7 +54,7 @@ export default function ResultsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `dispute-letter-${scanId}.pdf`
+    a.download = `dispute-letter-${scanId}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -100,7 +102,7 @@ export default function ResultsPage() {
                 {new Date(scan.createdAt).toLocaleDateString()}
               </p>
             </div>
-            {scan.tier === 'full-dispute' && (
+            {scan.tier === 'full-dispute' && scan.flags.length > 0 && (
               <button onClick={handleDownloadDispute} className="btn-primary inline-flex items-center gap-2 shrink-0">
                 <Download className="w-4 h-4" /> Download Dispute Letter
               </button>
@@ -108,7 +110,7 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        {/* Summary */}
+        {/* Severity counts */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="card text-center">
             <div className="text-2xl font-bold text-red-400">{highCount}</div>
@@ -124,63 +126,110 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        {/* Flags */}
-        {scan.flags.length === 0 ? (
-          <div className="card text-center py-12">
-            <Info className="w-10 h-10 text-green-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2">No issues found</h3>
-            <p className="text-brand-gray-400">Your document appears to be in order. No flags were detected.</p>
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6 border-b border-brand-gray-800">
+          <button
+            onClick={() => setActiveTab('flags')}
+            className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'flags'
+                ? 'border-brand-red text-white'
+                : 'border-transparent text-brand-gray-500 hover:text-brand-gray-300'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            Issues Found ({scan.flags.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('summary')}
+            className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'summary'
+                ? 'border-brand-red text-white'
+                : 'border-transparent text-brand-gray-500 hover:text-brand-gray-300'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            Plain English Summary
+          </button>
+        </div>
+
+        {/* Tab content */}
+        {activeTab === 'summary' ? (
+          <div className="card">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-brand-red" />
+              What This Document Says (No Jargon)
+            </h3>
+            {scan.summary ? (
+              <div className="text-brand-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                {scan.summary}
+              </div>
+            ) : (
+              <p className="text-brand-gray-500 text-sm italic">
+                Summary not available for this scan. Summaries are generated for new scans automatically.
+              </p>
+            )}
           </div>
         ) : (
-          <div className="space-y-4">
-            {scan.flags
-              .sort((a, b) => {
-                const order = { high: 0, medium: 1, low: 2 }
-                return order[a.severity] - order[b.severity]
-              })
-              .map((flag) => {
-                const config = severityConfig[flag.severity]
-                const Icon = config.icon
-                return (
-                  <div key={flag.id} className={`card border ${config.color}`}>
-                    <div className="flex items-start gap-3">
-                      <Icon className="w-5 h-5 mt-0.5 shrink-0" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold">{flag.flag_title}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${config.color} font-medium`}>
-                            {config.label}
-                          </span>
-                        </div>
+          <>
+            {/* Flags */}
+            {scan.flags.length === 0 ? (
+              <div className="card text-center py-12">
+                <Info className="w-10 h-10 text-green-400 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">No issues found</h3>
+                <p className="text-brand-gray-400">Your document appears to be in order. No flags were detected.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {scan.flags
+                  .sort((a, b) => {
+                    const order = { high: 0, medium: 1, low: 2 }
+                    return order[a.severity] - order[b.severity]
+                  })
+                  .map((flag) => {
+                    const config = severityConfig[flag.severity]
+                    const Icon = config.icon
+                    return (
+                      <div key={flag.id} className={`card border ${config.color}`}>
+                        <div className="flex items-start gap-3">
+                          <Icon className="w-5 h-5 mt-0.5 shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold">{flag.flag_title}</h3>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${config.color} font-medium`}>
+                                {config.label}
+                              </span>
+                            </div>
 
-                        {(scan.tier === 'full' || scan.tier === 'full-dispute') && (
-                          <>
-                            <p className="text-brand-gray-300 text-sm mb-3">{flag.plain_english}</p>
+                            {(scan.tier === 'full' || scan.tier === 'full-dispute') && (
+                              <>
+                                <p className="text-brand-gray-300 text-sm mb-3">{flag.plain_english}</p>
 
-                            {flag.estimated_impact && (
-                              <div className="text-sm mb-2">
-                                <span className="text-brand-gray-500">Estimated Impact:</span>{' '}
-                                <span className="font-semibold text-white">{flag.estimated_impact}</span>
-                              </div>
+                                {flag.estimated_impact && (
+                                  <div className="text-sm mb-2">
+                                    <span className="text-brand-gray-500">Estimated Impact:</span>{' '}
+                                    <span className="font-semibold text-white">{flag.estimated_impact}</span>
+                                  </div>
+                                )}
+
+                                <div className="text-sm mb-2">
+                                  <span className="text-brand-gray-500">Regulation:</span>{' '}
+                                  <span className="text-brand-gray-300">{flag.regulation_cited}</span>
+                                </div>
+
+                                <div className="text-sm">
+                                  <span className="text-brand-gray-500">Recommended Action:</span>{' '}
+                                  <span className="text-brand-gray-300">{flag.recommended_action}</span>
+                                </div>
+                              </>
                             )}
-
-                            <div className="text-sm mb-2">
-                              <span className="text-brand-gray-500">Regulation:</span>{' '}
-                              <span className="text-brand-gray-300">{flag.regulation_cited}</span>
-                            </div>
-
-                            <div className="text-sm">
-                              <span className="text-brand-gray-500">Recommended Action:</span>{' '}
-                              <span className="text-brand-gray-300">{flag.recommended_action}</span>
-                            </div>
-                          </>
-                        )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                )
-              })}
-          </div>
+                    )
+                  })}
+              </div>
+            )}
+          </>
         )}
 
         {/* Disclaimer */}
@@ -201,7 +250,6 @@ export default function ResultsPage() {
                 Based on your document type and location, here are some resources that may help:
               </p>
               <div className="space-y-3" id="resources-list">
-                {/* Resources are populated dynamically based on scan results */}
                 <p className="text-brand-gray-500 text-sm">
                   Resources for your area will appear here after your scan is processed.
                 </p>

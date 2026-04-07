@@ -12,6 +12,27 @@ interface AnalysisFlag {
   recommended_action: string
 }
 
+export async function generateSummary(
+  text: string,
+  documentType: string,
+  country: string
+): Promise<string> {
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1024,
+    system: `You are a plain-language document summarizer for JargonScan. Your job is to explain what this document says in simple, everyday English — no jargon, no legal terms. Write as if explaining to someone with no background in ${documentType.replace('-', ' ')} documents. Be concise but thorough. Cover: what the document is, who sent it, what they're asking for, key amounts/dates, and anything the reader should pay attention to. Use short paragraphs. Do NOT list errors or flags — just summarize what the document says.`,
+    messages: [
+      {
+        role: 'user',
+        content: `Please provide a plain-English summary of this document:\n\n${text}`,
+      },
+    ],
+  })
+
+  const content = response.content[0]
+  return content.type === 'text' ? content.text : 'Unable to generate summary.'
+}
+
 export async function analyzeDocument(
   text: string,
   documentType: string,
